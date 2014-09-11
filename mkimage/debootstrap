@@ -64,57 +64,6 @@ if [ -d "$rootfsDir/etc/apt/apt.conf.d" ]; then
 	echo 'Acquire::Languages "none";' > "$rootfsDir/etc/apt/apt.conf.d/docker-no-languages"
 fi
 
-if [ -z "$DONT_TOUCH_SOURCES_LIST" ]; then
-	# tweak sources.list, where appropriate
-	lsbDist=
-	if [ -z "$lsbDist" -a -r "$rootfsDir/etc/os-release" ]; then
-		lsbDist="$(. "$rootfsDir/etc/os-release" && echo "$ID")"
-	fi
-	if [ -z "$lsbDist" -a -r "$rootfsDir/etc/lsb-release" ]; then
-		lsbDist="$(. "$rootfsDir/etc/lsb-release" && echo "$DISTRIB_ID")"
-	fi
-	if [ -z "$lsbDist" -a -r "$rootfsDir/etc/debian_version" ]; then
-		lsbDist='Debian'
-	fi
-	case "$lsbDist" in
-		debian|Debian)
-			# updates and security!
-			if [ "$suite" != 'sid' -a "$suite" != 'unstable' ]; then
-				(
-					set -x
-					sed -i "p; s/ $suite main$/ ${suite}-updates main/" "$rootfsDir/etc/apt/sources.list"
-					echo "deb http://security.debian.org $suite/updates main" >> "$rootfsDir/etc/apt/sources.list"
-				)
-			fi
-			;;
-		ubuntu|Ubuntu)
-			# add the universe, updates, and security repositories
-			(
-				set -x
-				sed -i "
-					s/ $suite main$/ $suite main universe/; p;
-					s/ $suite main/ ${suite}-updates main/; p;
-					s/ $suite-updates main/ ${suite}-security main/
-				" "$rootfsDir/etc/apt/sources.list"
-			)
-			;;
-		tanglu|Tanglu)
-			# add the updates repository
-			if [ "$suite" != 'devel' ]; then
-				(
-					set -x
-					sed -i "p; s/ $suite main$/ ${suite}-updates main/" "$rootfsDir/etc/apt/sources.list"
-				)
-			fi
-			;;
-		steamos|SteamOS)
-			# add contrib and non-free
-			(
-				set -x
-				sed -i "s/ $suite main$/ $suite main contrib non-free/" "$rootfsDir/etc/apt/sources.list"
-			)
-			;;
-	esac
 fi
 
 # make sure we're fully up-to-date, too
