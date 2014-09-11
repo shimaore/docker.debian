@@ -8,4 +8,5 @@ else
   docker import - scratch < scratch.tar
 fi
 
-DATE=`/bin/date -u '+%Y%m%d-%H%M'`
+DATE=`/bin/date -u '+%Y%m%d-%H%M%S'`
+TMPDIR=./mkimage ./mkimage.sh -t "shimaore/debian:$DATE" debootstrap --variant=minbase testing http://debian.shimaore.net:9999/debian

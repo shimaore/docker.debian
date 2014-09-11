@@ -57,13 +57,14 @@ if [ -d "$rootfsDir/etc/apt/apt.conf.d" ]; then
 
     Dir::Cache::pkgcache "";
     Dir::Cache::srcpkgcache "";
-  EOF
+EOF
 
   # remove apt-cache translations for fast "apt-get update"
   echo >&2 "+ cat > '$rootfsDir/etc/apt/apt.conf.d/docker-no-languages'"
   echo 'Acquire::Languages "none";' > "$rootfsDir/etc/apt/apt.conf.d/docker-no-languages"
 fi
 
+cat ./local/sources.list > "$rootfsDir/etc/apt/sources.list"
 
 # make sure we're fully up-to-date, too
 (

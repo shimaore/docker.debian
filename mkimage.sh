@@ -12,7 +12,7 @@ usage() {
   exit 1
 }
 
-scriptDir="$(dirname "$(readlink -f "$BASH_SOURCE")")/mkimage"
+scriptDir="$(dirname $(readlink -f \"\$BASH_SOURCE\"))/mkimage"
 
 optTemp=$(getopt --options '+d:t:h' --longoptions 'dir:,tag:,help' --name "$mkimg" -- "$@")
 eval set -- "$optTemp"
@@ -64,10 +64,7 @@ mkdir -p "$rootfsDir/dev" "$rootfsDir/proc"
 
 # make sure /etc/resolv.conf has something useful in it
 mkdir -p "$rootfsDir/etc"
-cat > "$rootfsDir/etc/resolv.conf" <<'EOF'
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-EOF
+cat > "$rootfsDir/etc/resolv.conf" < ./local/resolv.conf
 
 tarFile="$dir/rootfs.tar.xz"
 touch "$tarFile"
