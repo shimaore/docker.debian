@@ -76,7 +76,7 @@ touch "$tarFile"
 
 echo >&2 "+ cat > '$dir/Dockerfile'"
 cat > "$dir/Dockerfile" <<'EOF'
-FROM scratch
+FROM shimaore/scratch
 ADD rootfs.tar.xz /
 EOF
 
