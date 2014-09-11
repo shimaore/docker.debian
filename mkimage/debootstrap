@@ -8,16 +8,16 @@ shift
 
 before=()
 while [ $# -gt 0 ] && [[ "$1" == -* ]]; do
-	before+=( "$1" )
-	shift
+  before+=( "$1" )
+  shift
 done
 
 suite="$1"
 shift
 
 (
-	set -x
-	debootstrap "${before[@]}" "$suite" "$rootfsDir" "$@"
+  set -x
+  debootstrap "${before[@]}" "$suite" "$rootfsDir" "$@"
 )
 
 # now for some Docker-specific tweaks
@@ -32,9 +32,9 @@ chmod +x "$rootfsDir/usr/sbin/policy-rc.d"
 
 # prevent upstart scripts from running during install/update
 (
-	set -x
-	chroot "$rootfsDir" dpkg-divert --local --rename --add /sbin/initctl
-	ln -sf /bin/true "$rootfsDir/sbin/initctl"
+  set -x
+  chroot "$rootfsDir" dpkg-divert --local --rename --add /sbin/initctl
+  ln -sf /bin/true "$rootfsDir/sbin/initctl"
 )
 
 # shrink the image, since apt makes us fat (wheezy: ~157.5MB vs ~120MB)
@@ -42,33 +42,32 @@ chmod +x "$rootfsDir/usr/sbin/policy-rc.d"
 
 # Ubuntu 10.04 sucks... :)
 if strings "$rootfsDir/usr/bin/dpkg" | grep -q unsafe-io; then
-	# force dpkg not to call sync() after package extraction (speeding up installs)
-	echo >&2 "+ echo force-unsafe-io > '$rootfsDir/etc/dpkg/dpkg.cfg.d/docker-apt-speedup'"
-	echo 'force-unsafe-io' > "$rootfsDir/etc/dpkg/dpkg.cfg.d/docker-apt-speedup"
+  # force dpkg not to call sync() after package extraction (speeding up installs)
+  echo >&2 "+ echo force-unsafe-io > '$rootfsDir/etc/dpkg/dpkg.cfg.d/docker-apt-speedup'"
+  echo 'force-unsafe-io' > "$rootfsDir/etc/dpkg/dpkg.cfg.d/docker-apt-speedup"
 fi
 
 if [ -d "$rootfsDir/etc/apt/apt.conf.d" ]; then
-	# _keep_ us lean by effectively running "apt-get clean" after every install
-	aptGetClean='"rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true";'
-	echo >&2 "+ cat > '$rootfsDir/etc/apt/apt.conf.d/docker-clean'"
-	cat > "$rootfsDir/etc/apt/apt.conf.d/docker-clean" <<-EOF
-		DPkg::Post-Invoke { ${aptGetClean} };
-		APT::Update::Post-Invoke { ${aptGetClean} };
+  # _keep_ us lean by effectively running "apt-get clean" after every install
+  aptGetClean='"rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true";'
+  echo >&2 "+ cat > '$rootfsDir/etc/apt/apt.conf.d/docker-clean'"
+  cat > "$rootfsDir/etc/apt/apt.conf.d/docker-clean" <<-EOF
+    DPkg::Post-Invoke { ${aptGetClean} };
+    APT::Update::Post-Invoke { ${aptGetClean} };
 
-		Dir::Cache::pkgcache "";
-		Dir::Cache::srcpkgcache "";
-	EOF
+    Dir::Cache::pkgcache "";
+    Dir::Cache::srcpkgcache "";
+  EOF
 
-	# remove apt-cache translations for fast "apt-get update"
-	echo >&2 "+ cat > '$rootfsDir/etc/apt/apt.conf.d/docker-no-languages'"
-	echo 'Acquire::Languages "none";' > "$rootfsDir/etc/apt/apt.conf.d/docker-no-languages"
+  # remove apt-cache translations for fast "apt-get update"
+  echo >&2 "+ cat > '$rootfsDir/etc/apt/apt.conf.d/docker-no-languages'"
+  echo 'Acquire::Languages "none";' > "$rootfsDir/etc/apt/apt.conf.d/docker-no-languages"
 fi
 
-fi
 
 # make sure we're fully up-to-date, too
 (
-	set -x
-	chroot "$rootfsDir" apt-get update
-	chroot "$rootfsDir" apt-get dist-upgrade -y
+  set -x
+  chroot "$rootfsDir" apt-get update
+  chroot "$rootfsDir" apt-get dist-upgrade -y
 )
