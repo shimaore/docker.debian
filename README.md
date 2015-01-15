@@ -1,6 +1,7 @@
 Build a very basic Debian image with my local preferences.
 
-    sudo ./build.sh
+    sudo /bin/true # save your session
+    make image
 
 You are expected to provide the following files in `./local`:
 
