@@ -4,6 +4,7 @@ TAG ::= $(shell /bin/date -u '+%Y%m%d-%H%M%S')
 image:
 	TMPDIR=./mkimage sudo ./mkimage.sh -t ${NAME}:${TAG} debootstrap --variant=minbase testing http://ftp.fr.debian.org/debian
 	docker tag ${NAME}:${TAG} ${NAME}:latest
+	git tag v${TAG}
 
 tests:
 	for test in test/*; do "$$test"; done
