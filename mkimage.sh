@@ -91,10 +91,10 @@ done
 ( set -x; rm -rf "$rootfsDir" )
 
 if [ "$tag" ]; then
-  ( set -x; docker build -t "$tag" "$dir" )
+  ( set -x; docker build --rm=true -t "$tag" "$dir" )
 elif [ "$delDir" ]; then
   # if we didn't specify a tag and we're going to delete our dir, let's just build an untagged image so that we did _something_
-  ( set -x; docker build "$dir" )
+  ( set -x; docker build --rm=true "$dir" )
 fi
 
 if [ "$delDir" ]; then
