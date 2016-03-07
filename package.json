@@ -1,5 +1,6 @@
 {
   "name": "docker.debian",
+  "docker_name": "shimaore/debian",
   "version": "2.0.6",
   "private": true
 }
